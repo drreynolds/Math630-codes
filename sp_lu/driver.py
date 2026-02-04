@@ -93,7 +93,7 @@ def makeplots(D):
 
 
 def diff_2D(Nx,Ny):
-    """
+    r"""
     Usage: D = diff_2D(Nx,Ny)
 
     This routine creates the diffusion matrix resulting from the equation
@@ -148,7 +148,7 @@ def diff_2D(Nx,Ny):
 
 
 def diff_3D(Nx,Ny,Nz):
-    """
+    r"""
     Usage: D = diff_3D(Nx,Ny,Nz)
 
     This routine creates the diffusion matrix resulting from the equation
@@ -238,4 +238,3 @@ if __name__ == "__main__":
     print("problem 4: larger 3D diffusion matrix");
     D = diff_3D(20,25,30)
     makeplots(D)
-

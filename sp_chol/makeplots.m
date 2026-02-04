@@ -20,7 +20,7 @@ spy(D)
 title(sprintf('Original matrix (nnz = %i)',nnz(D)), 'FontSize', 12)
 R = chol(D);
 subplot(1,2,2)
-spy(R+R')
+spy(R)
 title(sprintf('Original Cholesky (nnz = %i)',nnz(R+R')), 'FontSize', 12)
 
 
@@ -33,7 +33,7 @@ spy(Damd)
 title(sprintf('Approximate minimum degree (nnz = %i)',nnz(Damd)), 'FontSize', 12)
 R = chol(Damd);
 subplot(1,2,2)
-spy(R+R')
+spy(R)
 title(sprintf('AMD Cholesky (nnz = %i)',nnz(R+R')), 'FontSize', 12)
 
 
@@ -46,7 +46,7 @@ spy(Drcm)
 title(sprintf('Reverse Cuthill-McKee (nnz = %i)',nnz(Drcm)), 'FontSize', 12)
 R = chol(Drcm);
 subplot(1,2,2)
-spy(R+R')
+spy(R)
 title(sprintf('RCM Cholesky (nnz = %i)',nnz(R+R')), 'FontSize', 12)
 
 
