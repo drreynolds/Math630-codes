@@ -1,0 +1,262 @@
+#!/usr/bin/env python3
+#
+# Script to demonstrate sparse Cholesky factorizations (and reorderings) -- this requires the scikit-sparse pakage.
+#
+# Daniel R. Reynolds
+# Math 630 @ UMBC
+# Spring 2026
+
+# imports
+import time
+import numpy as np
+from scipy.sparse import csc_matrix
+from sksparse.cholmod import cholesky
+import matplotlib.pyplot as plt
+
+
+##################
+# utility routines
+
+def makeplots(D):
+    """
+    Usage: makeplots(D)
+
+    This routine creates 3 plots:
+       1. D and its L,L.T factors
+       2. D using the approximate minimum degree reordering on D.T @ D, and its
+          L,L.T factors)
+       3. D using the approximate minimum degree reordering on D.T + D, and its
+          L,L.T factors)
+       4. D using the approximate minimum degree on column ordering, and its L,L.T
+       factors)
+    """
+
+    # get size of D
+    m,n = D.shape
+
+    # figure 1: original structure and L,L.T factors
+    factor = cholesky(D, ordering_method='natural')
+    LU = factor.L() + (factor.L()).T
+    fig, axarr = plt.subplots(1,2)
+    axarr[0].spy(D)
+    axarr[0].set_title('Original matrix (nnz = ' + str(D.getnnz()) + ')')
+    axarr[1].spy(LU)
+    axarr[1].set_title('Original: L+L.T (nnz = ' + str(LU.getnnz()) + ')')
+
+
+    # figure 2: approximate minimum degree
+    factor = cholesky(D, ordering_method='amd')
+    LU = factor.L() + (factor.L()).T
+    P = factor.P()
+    PD = D[P[:, np.newaxis], P[np.newaxis, :]]
+    fig, axarr = plt.subplots(1,2)
+    axarr[0].spy(PD)
+    axarr[0].set_title('AMD matrix (nnz = ' + str(PD.getnnz()) + ')')
+    axarr[1].spy(LU)
+    axarr[1].set_title('AMD: L+L.T (nnz = ' + str(LU.getnnz()) + ')')
+
+    # figure 3: metis
+    factor = cholesky(D, ordering_method='metis')
+    LU = factor.L() + (factor.L()).T
+    P = factor.P()
+    PD = D[P[:, np.newaxis], P[np.newaxis, :]]
+    fig, axarr = plt.subplots(1,2)
+    axarr[0].spy(PD)
+    axarr[0].set_title('Metis matrix (nnz = ' + str(PD.getnnz()) + ')')
+    axarr[1].spy(LU)
+    axarr[1].set_title('Metis: L+L.T (nnz = ' + str(LU.getnnz()) + ')')
+
+    # figure 4: nesdis
+    factor = cholesky(D, ordering_method='nesdis')
+    LU = factor.L() + (factor.L()).T
+    P = factor.P()
+    PD = D[P[:, np.newaxis], P[np.newaxis, :]]
+    fig, axarr = plt.subplots(1,2)
+    axarr[0].spy(PD)
+    axarr[0].set_title('nesdis matrix (nnz = ' + str(PD.getnnz()) + ')')
+    axarr[1].spy(LU)
+    axarr[1].set_title('nesdis: L+L.T (nnz = ' + str(LU.getnnz()) + ')')
+
+    # figure 5: colamd
+    factor = cholesky(D, ordering_method='colamd')
+    LU = factor.L() + (factor.L()).T
+    P = factor.P()
+    PD = D[P[:, np.newaxis], P[np.newaxis, :]]
+    fig, axarr = plt.subplots(1,2)
+    axarr[0].spy(PD)
+    axarr[0].set_title('Colamd matrix (nnz = ' + str(PD.getnnz()) + ')')
+    axarr[1].spy(LU)
+    axarr[1].set_title('Colamd: L+L.T (nnz = ' + str(LU.getnnz()) + ')')
+
+    # figure 6: default
+    factor = cholesky(D, ordering_method='default')
+    LU = factor.L() + (factor.L()).T
+    P = factor.P()
+    PD = D[P[:, np.newaxis], P[np.newaxis, :]]
+    fig, axarr = plt.subplots(1,2)
+    axarr[0].spy(PD)
+    axarr[0].set_title('Default matrix (nnz = ' + str(PD.getnnz()) + ')')
+    axarr[1].spy(LU)
+    axarr[1].set_title('Default: L+L.T (nnz = ' + str(LU.getnnz()) + ')')
+
+    # figure 7: best
+    factor = cholesky(D, ordering_method='best')
+    LU = factor.L() + (factor.L()).T
+    P = factor.P()
+    PD = D[P[:, np.newaxis], P[np.newaxis, :]]
+    fig, axarr = plt.subplots(1,2)
+    axarr[0].spy(PD)
+    axarr[0].set_title('Best matrix (nnz = ' + str(PD.getnnz()) + ')')
+    axarr[1].spy(LU)
+    axarr[1].set_title('Best: L+L.T (nnz = ' + str(LU.getnnz()) + ')')
+
+    plt.show()
+
+
+
+def diff_2D(Nx,Ny):
+    """
+    Usage: D = diff_2D(Nx,Ny)
+
+    This routine creates the diffusion matrix resulting from the equation
+    \[
+         u - \Delta u,
+    \]
+    where $u \in \Real$ is defined on the square domain [0,1] x [0,1], which
+    is discretized using Nx points in the x-direction, and Ny points in the
+    y-direction, and the Laplace operator is discretized using the standard
+    2nd-order 5 point stencil.  Homogeneous Dirichlet boundary conditions are
+    assumed just outside the domain.
+
+    inputs:
+        Nx       # spatial points in the x-direction of the domain
+        Ny       # spatial points in the y-direction of the domain
+
+    outputs:
+        D        REAL (Nx*Ny) x (Nx*Ny) sparse (CSC) matrix
+    """
+
+    # set indexing function from 2D physical space to 1D index space
+    def ij(i,j):
+        return(j*Nx + i)
+
+    # initialize the output matrix
+    D = np.zeros((Nx*Ny,Nx*Ny), dtype=float)
+
+    # set differencing constants
+    dx = 1.0/(Nx-1)
+    dy = 1.0/(Ny-1)
+    Dx2i = 1.0/dx/dx
+    Dy2i = 1.0/dy/dy
+    Diag = 1.0 + 2.0*(Dx2i + Dy2i)
+
+    # iterate over the domain
+    for iy in range(Ny):
+        for ix in range(Nx):
+
+            # set the matrix entries for this row of D
+            D[ ij(ix,iy), ij(ix,iy) ] = Diag
+            if (ix > 0):
+                D[ ij(ix,iy), ij(ix-1,iy) ] = -Dx2i
+            if (ix < Nx-1):
+                D[ ij(ix,iy), ij(ix+1,iy) ] = -Dx2i
+            if (iy > 0):
+                D[ ij(ix,iy), ij(ix,iy-1) ] = -Dy2i
+            if (iy < Ny-1):
+                D[ ij(ix,iy), ij(ix,iy+1) ] = -Dy2i
+
+    Dcsc = csc_matrix(D)
+    return Dcsc
+
+
+def diff_3D(Nx,Ny,Nz):
+    """
+    Usage: D = diff_3D(Nx,Ny,Nz)
+
+    This routine creates the diffusion matrix resulting from the equation
+    \[
+         u - \Delta u,
+    \]
+    where $u \in \Real$ is defined on the cube domain [0,1] x [0,1] x [0,1],
+    which is discretized using Nx points in the x-direction, Ny points in the
+    y-direction, Nz points in the z-direction, and the Laplace operator is
+    discretized using the standard 2nd-order 7 point stencil.  Homogeneous
+    Dirichlet boundary conditions are assumed just outside the domain.
+
+    inputs:
+        Nx       # spatial points in the x-direction of the domain
+        Ny       # spatial points in the y-direction of the domain
+        Nz       # spatial points in the z-direction of the domain
+
+    outputs:
+        D        REAL (Nx*Ny*Nz) x (Nx*Ny*Nz) sparse (CSC) matrix
+    """
+
+    # set indexing function from 3D physical space to 1D index space
+    def ijk(i,j,k):
+        return (k*Nx*Ny + j*Nx + i)
+
+    # initialize the output matrix
+    D = np.zeros((Nx*Ny*Nz,Nx*Ny*Nz), dtype=float)
+
+    # set differencing constants
+    dx = 1.0/(Nx-1)
+    dy = 1.0/(Ny-1)
+    dz = 1.0/(Nz-1)
+    Dx2i = 1.0/dx/dx
+    Dy2i = 1.0/dy/dy
+    Dz2i = 1.0/dz/dz
+    Diag = 1.0 + 2.0*(Dx2i + Dy2i + Dz2i)
+
+    # iterate over the domain
+    for iz in range(Nz):
+        for iy in range(Ny):
+            for ix in range(Nx):
+
+                # set the matrix entries for this row of D
+                D[ ijk(ix,iy,iz), ijk(ix,iy,iz) ] = Diag
+                if (ix > 0):
+                    D[ ijk(ix,iy,iz), ijk(ix-1,iy,iz) ] = -Dx2i
+                if (ix < Nx-1):
+                    D[ ijk(ix,iy,iz), ijk(ix+1,iy,iz) ] = -Dx2i
+                if (iy > 0):
+                    D[ ijk(ix,iy,iz), ijk(ix,iy-1,iz) ] = -Dy2i
+                if (iy < Ny-1):
+                    D[ ijk(ix,iy,iz), ijk(ix,iy+1,iz) ] = -Dy2i
+                if (iz > 0):
+                    D[ ijk(ix,iy,iz), ijk(ix,iy,iz-1) ] = -Dz2i
+                if (iz < Nz-1):
+                    D[ ijk(ix,iy,iz), ijk(ix,iy,iz+1) ] = -Dz2i
+
+    Dcsc = csc_matrix(D)
+    return Dcsc
+
+
+
+##################
+# script
+
+if __name__ == "__main__":
+
+    # problem 1: small 2D diffusion matrix
+    print("problem 1: small 2D diffusion matrix")
+    D = diff_2D(5,10)
+    makeplots(D)
+    input("Press enter to continue")
+
+    # problem 2: larger 2D diffusion matrix
+    print("problem 2: larger 2D diffusion matrix");
+    D = diff_2D(50,100)
+    makeplots(D)
+    input("Press enter to continue")
+
+    # problem 3: small 3D diffusion matrix
+    print("problem 3: small 3D diffusion matrix");
+    D = diff_3D(5,8,10)
+    makeplots(D)
+    input("Press enter to continue")
+
+    # problem 4: larger 3D diffusion matrix
+    print("problem 4: larger 3D diffusion matrix");
+    D = diff_3D(20,25,30)
+    makeplots(D)
