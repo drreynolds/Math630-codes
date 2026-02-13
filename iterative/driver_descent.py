@@ -94,7 +94,7 @@ if __name__ == "__main__":
         x, niters, _ = steepest_descent(A, None, x0, b, maxiters, tol)
         toc = time.perf_counter()
         print("  SD:        niters = %5d, time = %.1e, error = %.1e, residual = %.1e" 
-              % (niters, toc-tic, norm(x - xtrue), norm(b - A@x)))
+              % (niters, toc-tic, norm(x - xtrue)/norm(xtrue), norm(b - A@x)/norm(b)))
 
         # run steepest descent with Jacobi preconditioning
         x0 = initial_guess(M)
