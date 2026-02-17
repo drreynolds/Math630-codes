@@ -87,7 +87,7 @@ if __name__ == "__main__":
         tic = time.perf_counter()
         x, _ = la.cg(A, b, x0, rtol=tol, maxiter=maxiters, M=P, callback=count_iters)
         toc = time.perf_counter()
-        print("  PCG:       niters = %5d, time = %.1e, error = %.1e, residual = %.1e" 
+        print("  PCG:       niters = %5d, time = %.1e, error = %.1e, residual = %.1e"
               % (niters, toc-tic, norm(x - xtrue)/norm(xtrue), norm(b - A@x)/norm(b)))
 
         # run minres
@@ -96,7 +96,7 @@ if __name__ == "__main__":
         tic = time.perf_counter()
         x, _ = la.minres(A, b, x0, rtol=tol, maxiter=maxiters, M=P, callback=count_iters)
         toc = time.perf_counter()
-        print("  MINRES:    niters = %5d, time = %.1e, error = %.1e, residual = %.1e" 
+        print("  MINRES:    niters = %5d, time = %.1e, error = %.1e, residual = %.1e"
               % (niters, toc-tic, norm(x - xtrue)/norm(xtrue), norm(b - A@x)/norm(b)))
 
         # run gmres with restart size of 10
@@ -105,7 +105,7 @@ if __name__ == "__main__":
         tic = time.perf_counter()
         x, _ = la.gmres(A, b, x0, rtol=tol, restart=10, maxiter=maxiters, M=P, callback=count_iters)
         toc = time.perf_counter()
-        print("  GMRES(10): niters = %5d, time = %.1e, error = %.1e, residual = %.1e" 
+        print("  GMRES(10): niters = %5d, time = %.1e, error = %.1e, residual = %.1e"
               % (niters, toc-tic, norm(x - xtrue)/norm(xtrue), norm(b - A@x)/norm(b)))
 
         # run gmres with restart size of 20
@@ -114,7 +114,7 @@ if __name__ == "__main__":
         tic = time.perf_counter()
         x, _ = la.gmres(A, b, x0, rtol=tol, restart=20, maxiter=maxiters, M=P, callback=count_iters)
         toc = time.perf_counter()
-        print("  GMRES(20): niters = %5d, time = %.1e, error = %.1e, residual = %.1e" 
+        print("  GMRES(20): niters = %5d, time = %.1e, error = %.1e, residual = %.1e"
               % (niters, toc-tic, norm(x - xtrue)/norm(xtrue), norm(b - A@x)/norm(b)))
 
         # run bicg
@@ -123,7 +123,7 @@ if __name__ == "__main__":
         tic = time.perf_counter()
         x, _ = la.bicg(A, b, x0, rtol=tol, maxiter=maxiters, M=P, callback=count_iters)
         toc = time.perf_counter()
-        print("  BICG:      niters = %5d, time = %.1e, error = %.1e, residual = %.1e" 
+        print("  BICG:      niters = %5d, time = %.1e, error = %.1e, residual = %.1e"
               % (niters, toc-tic, norm(x - xtrue)/norm(xtrue), norm(b - A@x)/norm(b)))
 
         # run cgs
@@ -132,7 +132,7 @@ if __name__ == "__main__":
         tic = time.perf_counter()
         x, _ = la.cgs(A, b, x0, rtol=tol, maxiter=maxiters, M=P, callback=count_iters)
         toc = time.perf_counter()
-        print("  CGS:       niters = %5d, time = %.1e, error = %.1e, residual = %.1e" 
+        print("  CGS:       niters = %5d, time = %.1e, error = %.1e, residual = %.1e"
               % (niters, toc-tic, norm(x - xtrue)/norm(xtrue), norm(b - A@x)/norm(b)))
 
         # run bicgstab
@@ -141,14 +141,14 @@ if __name__ == "__main__":
         tic = time.perf_counter()
         x, _ = la.bicgstab(A, b, x0, rtol=tol, maxiter=maxiters, M=P, callback=count_iters)
         toc = time.perf_counter()
-        print("  BICGSTAB:  niters = %5d, time = %.1e, error = %.1e, residual = %.1e" 
+        print("  BICGSTAB:  niters = %5d, time = %.1e, error = %.1e, residual = %.1e"
               % (niters, toc-tic, norm(x - xtrue)/norm(xtrue), norm(b - A@x)/norm(b)))
 
         # run qmr
         niters=0
         x0 = initial_guess(M)
         tic = time.perf_counter()
-        x, _ = la.qmr(A, b, x0, rtol=tol, maxiter=maxiters, M1=P, M2=P,callback=count_iters)
+        x, _ = la.qmr(A, b, x0, rtol=tol, maxiter=maxiters, M1=P, M2=P, callback=count_iters)
         toc = time.perf_counter()
-        print("  QMR:       niters = %5d, time = %.1e, error = %.1e, residual = %.1e" 
+        print("  QMR:       niters = %5d, time = %.1e, error = %.1e, residual = %.1e"
               % (niters, toc-tic, norm(x - xtrue)/norm(xtrue), norm(b - A@x)/norm(b)))
