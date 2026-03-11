@@ -15,11 +15,21 @@ function u = sor(u, b, omega)
 % Math 630 @ UMBC
 % Spring 2026
 
+% deduce mesh size from RHS vector
 N = sqrt(length(b));
+
+% set function to help map from 2D logical space to 1D index space
 ij = @(i,j) (j-1)*N + i;
+
+% loop over physical domain, implementing formula (8.2.20) from the book
+% note that we modify the input vector in-place instead of filling a separate output
 for j = 1:N
     for i = 1:N
+
+        % b holds h^2*f_{i,j}, along with modifications for boundary data
         uhat = 0.25*b(ij(i,j));
+
+        % implement update at (i,j) location, accounting for modifications at boundaries
         if (i > 1)
             uhat = uhat + 0.25*u(ij(i-1,j));
         end

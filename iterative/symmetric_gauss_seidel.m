@@ -14,6 +14,7 @@ function u = symmetric_gauss_seidel(u, b)
 % Math 630 @ UMBC
 % Spring 2026
 
+% symmetric Gauss-Seidel just consists of two passes (one in each direction)
 u = fwd_gauss_seidel(u, b);
 u = bwd_gauss_seidel(u, b);
 

@@ -27,7 +27,7 @@ if ~isa(Pinv, 'function_handle')
     Pinv = @(z) z;
 end
 
-% perform algorithm
+% directly implement algorithm from page 598 of the book
 r = b - A*x;
 p = Pinv(r);
 for iters = 1:maxit
@@ -38,6 +38,8 @@ for iters = 1:maxit
     dxnorm = abs(alpha)*norm(p);
     xnorm = norm(x);
     p = Pinv(r);
+
+    % break when relative change in iterates is below tol
     if (dxnorm <= xnorm*tol)
         break;
     end

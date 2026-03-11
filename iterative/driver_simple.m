@@ -39,6 +39,7 @@ for M = Mvals
     for niters = 1:maxiters
         x = x0;
         x = jacobi(x, b);
+        % break when relative change in iterates is below tol
         if (norm(x - x0)/norm(x) < tol)
             break
         end
