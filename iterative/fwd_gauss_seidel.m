@@ -16,7 +16,6 @@ function u = fwd_gauss_seidel(u, b)
 
 N = sqrt(length(b));
 ij = @(i,j) (j-1)*N + i;
-h = 1/(N+1);
 for j = 1:N
     for i = 1:N
         u(ij(i,j)) = 0.25*b(ij(i,j));

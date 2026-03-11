@@ -16,7 +16,6 @@ function u_new = jacobi(u, b)
 
 N = sqrt(length(b));
 ij = @(i,j) (j-1)*N + i;
-h = 1/(N+1);
 u_new = zeros(size(u));
 for j = 1:N
     for i = 1:N

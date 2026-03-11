@@ -16,7 +16,6 @@ function u = red_black_gauss_seidel(u, b)
 
 N = sqrt(length(b));
 ij = @(i,j) (j-1)*N + i;
-h = 1/(N+1);
 for j = 1:N
     for i = 1:N
         if (mod(i+j,2) == 0)

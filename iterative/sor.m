@@ -17,7 +17,6 @@ function u = sor(u, b, omega)
 
 N = sqrt(length(b));
 ij = @(i,j) (j-1)*N + i;
-h = 1/(N+1);
 for j = 1:N
     for i = 1:N
         uhat = 0.25*b(ij(i,j));
